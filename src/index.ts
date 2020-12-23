@@ -160,7 +160,7 @@ client.on('message', async msg => {
         embed.addField('&atis \`icao\`', 'Get the ATIS for an airport if available, eg. \`&atis YMML\`');
         embed.addField('&airport \`icao\`', 'Get ATIS and Traffic information for an airport, eg. \`&airport YMAY\`');
         embed.addField('&stats', 'Get current server stats');
-        embed.addField('&stats \`message\`', 'Send feedback on this bot');
+        embed.addField('&feedback \`message\`', 'Send feedback on this bot');
         await msg.channel.send(embed);
         return;
     }
