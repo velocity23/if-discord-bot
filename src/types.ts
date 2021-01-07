@@ -4,21 +4,23 @@ export interface ApiResponse<T> {
 }
 
 export enum ErrorCode {
-    Ok, 
-    UserNotFound, 
-    MissingRequestParameters, 
-    InvalidToken, 
-    AuthProviderFailure, 
-    AccountAlreadyInUse, 
-    ExpiredToken, 
-    NetworkError, 
-    EndpointError, 
-    EndpointNotAuthorized, 
-    EndpointTimeout, 
-    NotSupported, 
-    InvalidInput, 
-    AccountSuspended, 
-    ServerNotFound
+    Ok,
+    UserNotFound,
+    MissingRequestParameters,
+    InvalidToken,
+    AuthProviderFailure,
+    AccountAlreadyInUse,
+    ExpiredToken,
+    NetworkError,
+    EndpointError,
+    EndpointNotAuthorized,
+    EndpointTimeout,
+    NotSupported,
+    InvalidInput,
+    AccountSuspended,
+    ServerNotFound,
+    FlightNotFound,
+    NoAtisAvailable,
 }
 
 export interface AtcEntry {
@@ -45,7 +47,7 @@ export enum FrequencyType {
     Aircraft,
     Recorded,
     Unknown,
-    Unused
+    Unused,
 }
 
 export interface FlightEntry {
@@ -89,14 +91,14 @@ export enum RuleOperator {
     GreaterThanOrEqual,
     LesserThanOrEqual,
     Equal,
-    DifferentThan
+    DifferentThan,
 }
 
 export interface GradeRule {
     ruleIndex: number;
     referenceValue: number;
     userValue: number;
-    state: RulePassState,
+    state: RulePassState;
     userValueString: string;
     referenceValueString: string;
     definition: GradeRuleDefinition;
@@ -105,7 +107,7 @@ export interface GradeRule {
 export enum RulePassState {
     Fail,
     Ok,
-    Warning
+    Warning,
 }
 
 export interface Grade {
