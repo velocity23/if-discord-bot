@@ -10,19 +10,25 @@ client.on('ready', () => {
     client.user?.setActivity('&help', { type: 'WATCHING' });
 });
 
-client.on('message', async msg => {
+client.on('message', async (msg) => {
     const content = msg.content.toLowerCase().replace(/ ?\& ?/, '&');
-    
+
     if (content.startsWith('&atc')) {
-        let serverName = content.split(' ', 2)[1]?.toLowerCase().replace('server', '').trim();
+        let serverName = content
+            .split(' ', 2)[1]
+            ?.toLowerCase()
+            .replace('server', '')
+            .trim();
         console.log(serverName);
         if (!serverName) {
             msg.reply('please include a server');
             return;
         }
-        let serverInfo = (await iflive.sessions()).filter(s => s.name.toLowerCase().includes(serverName))[0];
+        let serverInfo = (await iflive.sessions()).filter((s) =>
+            s.name.toLowerCase().includes(serverName)
+        )[0];
         if (typeof serverInfo === 'undefined') {
-            await msg.reply('that doesn\'t look like a valid server');
+            await msg.reply("that doesn't look like a valid server");
             return;
         }
 
@@ -30,7 +36,10 @@ client.on('message', async msg => {
         const stations = await iflive.atc(serverInfo.id);
         for (let s of stations) {
             if (s.airportName == null) {
-                let actualApt = stations.filter(sf => sf.latitude == s.latitude && sf.longitude == s.longitude)[0];
+                let actualApt = stations.filter(
+                    (sf) =>
+                        sf.latitude == s.latitude && sf.longitude == s.longitude
+                )[0];
                 if (typeof actualApt == 'undefined') continue;
 
                 s.airportName = actualApt.airportName;
@@ -44,7 +53,10 @@ client.on('message', async msg => {
         const embed = new discord.MessageEmbed();
         embed.setTitle(`ATC Stations for ${serverInfo.name}`);
         for (const [icao, stations] of Object.entries(response)) {
-            embed.addField(icao, stations.map(s => FrequencyType[s.type]).join(', '));
+            embed.addField(
+                icao,
+                stations.map((s) => FrequencyType[s.type]).join(', ')
+            );
         }
 
         await msg.channel.send(embed);
@@ -58,7 +70,7 @@ client.on('message', async msg => {
             return;
         }
 
-        const stats = (await iflive.userStats([], [], [ userName ]))[0];
+        const stats = (await iflive.userStats([], [], [userName]))[0];
         if (typeof stats === 'undefined') {
             msg.reply('stats not found, maybe the user is flying anonymously?');
             return;
@@ -66,7 +78,7 @@ client.on('message', async msg => {
 
         const embed = new discord.MessageEmbed();
         embed.setTitle(`Stats for ${stats.discourseUsername}`);
-        
+
         let description = '';
         description += `Online Flights: ${stats.onlineFlights}\n`;
         description += `Violations: ${stats.violations}\n`;
@@ -74,50 +86,79 @@ client.on('message', async msg => {
         description += `Landings: ${stats.landingCount}\n`;
         let ftHrs = Math.floor(stats.flightTime / 60);
         let ftMins = stats.flightTime - ftHrs * 60;
-        description += `Flight Time: ${ftHrs}:${ftMins < 10 ? `0${ftMins}` : ftMins}\n`;
+        description += `Flight Time: ${ftHrs}:${
+            ftMins < 10 ? `0${ftMins}` : ftMins
+        }\n`;
         description += `Grade: Grade ${stats.grade}\n`;
         description += `VO: ${stats.virtualOrganization}\n`;
         embed.setDescription(description);
-        
+
         await msg.channel.send(embed);
         return;
     }
 
     if (content.startsWith('&atis')) {
-        let airportIcao = content.split(' ', 2)[1]?.toUpperCase().trim().replace(/(?!([a-z]|-|[0-9]))./ig, '');
+        let airportIcao = content
+            .split(' ', 2)[1]
+            ?.toUpperCase()
+            .trim()
+            .replace(/(?!([a-z]|-|[0-9]))./gi, '');
         if (!airportIcao) {
             msg.reply('please include an airport ICAO');
             return;
         }
         const atis = await iflive.getAtis(airportIcao);
         if (atis == '') {
-            msg.channel.send(new discord.MessageEmbed().setTitle(`ATIS for ${airportIcao}`).setDescription('No ATIS Found'));
+            msg.channel.send(
+                new discord.MessageEmbed()
+                    .setTitle(`ATIS for ${airportIcao}`)
+                    .setDescription('No ATIS Found')
+            );
             return;
         }
 
-        msg.channel.send(new discord.MessageEmbed().setTitle(`ATIS for ${airportIcao}`).setDescription(atis));
+        msg.channel.send(
+            new discord.MessageEmbed()
+                .setTitle(`ATIS for ${airportIcao}`)
+                .setDescription(atis)
+        );
         return;
     }
 
     if (content.startsWith('&airport')) {
-        let airportIcao = content.split(' ', 2)[1]?.toUpperCase().trim().replace(/(?!([a-z]|-|[0-9]))./ig, '');
+        let airportIcao = content
+            .split(' ', 2)[1]
+            ?.toUpperCase()
+            .trim()
+            .replace(/(?!([a-z]|-|[0-9]))./gi, '');
         if (!airportIcao) {
             msg.reply('please include an airport ICAO');
             return;
         }
 
-        const flightPlans = await iflive.flightPlans('7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856');
-        const deps = flightPlans.filter(p => p.waypoints[0] == airportIcao);
-        const arrs = flightPlans.filter(p => p.waypoints[p.waypoints.length - 1] == airportIcao);
+        const flightPlans = await iflive.flightPlans(
+            '7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856'
+        );
+        const deps = flightPlans.filter((p) => p.waypoints[0] == airportIcao);
+        const arrs = flightPlans.filter(
+            (p) => p.waypoints[p.waypoints.length - 1] == airportIcao
+        );
         const atis = await iflive.getAtis(airportIcao);
-        const atc = (await iflive.atc('7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856')).filter(a => a.airportName == airportIcao);
+        const atc = (
+            await iflive.atc('7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856')
+        ).filter((a) => a.airportName == airportIcao);
 
         const embed = new discord.MessageEmbed();
         embed.setTitle(`Airport: ${airportIcao}`);
         embed.setFooter('Currently only the Expert Server is supported');
         embed.addField('Departures', deps.length);
         embed.addField('Arrivals', arrs.length);
-        embed.addField('ATC', atc.length > 0 ? atc.map(a => FrequencyType[a.type]).join(', ') : 'No ATC');
+        embed.addField(
+            'ATC',
+            atc.length > 0
+                ? atc.map((a) => FrequencyType[a.type]).join(', ')
+                : 'No ATC'
+        );
         embed.addField('ATIS', atis != '' ? atis : 'N/A');
         await msg.channel.send(embed);
         return;
@@ -128,7 +169,9 @@ client.on('message', async msg => {
         const embed = new discord.MessageEmbed();
         embed.setTitle('Server Stats');
         for (const s of sessions) {
-            let data = `Users: ${s.userCount}\nLoad: ${Math.round(s.maxUsers / s.userCount)}%\n`;
+            let data = `Users: ${s.userCount}\nLoad: ${Math.round(
+                (s.userCount / s.maxUsers) * 100
+            )}%\n`;
             embed.addField(s.name, data);
         }
 
@@ -146,7 +189,9 @@ client.on('message', async msg => {
         if (avatar) {
             embed.setThumbnail(avatar!);
         }
-        await ((await client.channels.fetch("763599053354172456")) as discord.TextChannel).send(embed);
+        await ((await client.channels.fetch(
+            '763599053354172456'
+        )) as discord.TextChannel).send(embed);
 
         await msg.reply('Your Feedback was Sent');
         return;
@@ -155,12 +200,24 @@ client.on('message', async msg => {
     if (content.startsWith('&help')) {
         const embed = new discord.MessageEmbed();
         embed.setTitle('Infinite Flight Bot - Help');
-        embed.addField('&atc \`server\`', 'Get Open ATC Stations for a Server, eg. \`&atc expert\`');
-        embed.addField('&user \`ifc\`', 'Get stats for a user based on their IFC, if possible. Eg. \`&user Laura\`');
-        embed.addField('&atis \`icao\`', 'Get the ATIS for an airport if available, eg. \`&atis YMML\`');
-        embed.addField('&airport \`icao\`', 'Get ATIS and Traffic information for an airport, eg. \`&airport YMAY\`');
+        embed.addField(
+            '&atc `server`',
+            'Get Open ATC Stations for a Server, eg. `&atc expert`'
+        );
+        embed.addField(
+            '&user `ifc`',
+            'Get stats for a user based on their IFC, if possible. Eg. `&user Laura`'
+        );
+        embed.addField(
+            '&atis `icao`',
+            'Get the ATIS for an airport if available, eg. `&atis YMML`'
+        );
+        embed.addField(
+            '&airport `icao`',
+            'Get ATIS and Traffic information for an airport, eg. `&airport YMAY`'
+        );
         embed.addField('&stats', 'Get current server stats');
-        embed.addField('&feedback \`message\`', 'Send feedback on this bot');
+        embed.addField('&feedback `message`', 'Send feedback on this bot');
         await msg.channel.send(embed);
         return;
     }
