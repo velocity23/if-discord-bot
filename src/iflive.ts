@@ -1,27 +1,23 @@
-// Libs
-import axios from 'axios';
-import * as dotenv from 'dotenv';
 import {
     UserGradeInfo,
     SessionInfo,
-    FlightPlanEntry,
     FlightEntry,
     AtcEntry,
     UserStats,
     ApiResponse,
     ErrorCode,
 } from './types';
-dotenv.config();
 
-// Basic Variables
-const APIKEY = process.env.IF_LIVE_KEY;
+declare const IF_API_KEY: string;
 const URLBASE = 'https://api.infiniteflight.com/public/v2';
 
 export async function sessions(): Promise<SessionInfo[]> {
-    const result = await axios.get<ApiResponse<SessionInfo[]>>(
-        `${URLBASE}/sessions?apikey=${APIKEY}`
-    );
-    const response = result.data;
+    const req = await fetch(`${URLBASE}/sessions`, {
+        headers: {
+            Authorization: `Bearer ${IF_API_KEY}`,
+        },
+    });
+    const response: ApiResponse<SessionInfo[]> = await req.json();
     if (response.errorCode != 0) {
         await Promise.reject(
             new Error(
@@ -35,29 +31,12 @@ export async function sessions(): Promise<SessionInfo[]> {
 }
 
 export async function flights(sessionId: string): Promise<FlightEntry[]> {
-    const result = await axios.get<ApiResponse<FlightEntry[]>>(
-        `${URLBASE}/flights/${sessionId}?apikey=${APIKEY}`
-    );
-    const response = result.data;
-    if (response.errorCode != 0) {
-        await Promise.reject(
-            new Error(
-                'Invalid API Response Code. Expected 0, received ' +
-                    response.errorCode
-            )
-        );
-    }
-
-    return response.result;
-}
-
-export async function flightPlans(
-    sessionId: string
-): Promise<FlightPlanEntry[]> {
-    const result = await axios.get<ApiResponse<FlightPlanEntry[]>>(
-        `${URLBASE}/flightplans/${sessionId}?apikey=${APIKEY}`
-    );
-    const response = result.data;
+    const req = await fetch(`${URLBASE}/flights/${sessionId}`, {
+        headers: {
+            Authorization: `Bearer ${IF_API_KEY}`,
+        },
+    });
+    const response: ApiResponse<FlightEntry[]> = await req.json();
     if (response.errorCode != 0) {
         await Promise.reject(
             new Error(
@@ -71,10 +50,12 @@ export async function flightPlans(
 }
 
 export async function atc(sessionId: string): Promise<AtcEntry[]> {
-    const result = await axios.get<ApiResponse<AtcEntry[]>>(
-        `${URLBASE}/atc/${sessionId}?apikey=${APIKEY}`
-    );
-    const response = result.data;
+    const req = await fetch(`${URLBASE}/atc/${sessionId}`, {
+        headers: {
+            Authorization: `Bearer ${IF_API_KEY}`,
+        },
+    });
+    const response: ApiResponse<AtcEntry[]> = await req.json();
     if (response.errorCode != 0) {
         await Promise.reject(
             new Error(
@@ -88,10 +69,12 @@ export async function atc(sessionId: string): Promise<AtcEntry[]> {
 }
 
 export async function gradeTable(userId: string): Promise<UserGradeInfo> {
-    const result = await axios.get<ApiResponse<UserGradeInfo>>(
-        `${URLBASE}/user/grade/${userId}?apikey=${APIKEY}`
-    );
-    const response = result.data;
+    const req = await fetch(`${URLBASE}/user/grade/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${IF_API_KEY}`,
+        },
+    });
+    const response: ApiResponse<UserGradeInfo> = await req.json();
     if (response.errorCode != 0) {
         await Promise.reject(
             new Error(
@@ -119,11 +102,16 @@ export async function userStats(
     if (discourseNames.length > 0) {
         rbody.discourseNames = discourseNames;
     }
-    const result = await axios.post<ApiResponse<UserStats[]>>(
-        `${URLBASE}/user/stats?apikey=${APIKEY}`,
-        rbody
-    );
-    const response = result.data;
+
+    const req = await fetch(`${URLBASE}/user/stats`, {
+        headers: {
+            Authorization: `Bearer ${IF_API_KEY}`,
+            'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify(rbody),
+    });
+    const response: ApiResponse<UserStats[]> = await req.json();
     if (response.errorCode != ErrorCode.Ok) {
         await Promise.reject(
             new Error(
@@ -140,12 +128,20 @@ export async function getAtis(
     airportIcao: string,
     sessionId: string = '7e5dcd44-1fb5-49cc-bc2c-a9aab1f6a856'
 ): Promise<string> {
-    try {
-        const result = await axios.get<ApiResponse<string>>(
-            `${URLBASE}/airport/${airportIcao}/atis/${sessionId}?apikey=${APIKEY}`
+    const req = await fetch(`${URLBASE}/atis/${airportIcao}/${sessionId}`, {
+        headers: {
+            Authorization: `Bearer ${IF_API_KEY}`,
+        },
+    });
+    const response: ApiResponse<string> = await req.json();
+    if (response.errorCode != ErrorCode.Ok) {
+        await Promise.reject(
+            new Error(
+                'Invalid API Response Code. Expected 0, received ' +
+                    response.errorCode
+            )
         );
-        return result.data.result;
-    } catch {
-        return '';
     }
+
+    return response.result;
 }
