@@ -1,0 +1,10 @@
+name = "if-discord-bot"
+type = "webpack"
+zone_id = "d0a0f3e8ca1b3c91d704b5949df49858"
+account_id = "98cfd14d96bac02d5ace09aa11ffc9ba"
+route = "https://ifbot.kaimalcolm.com/*"
+webpack_config = "webpack.config.js"
+
+# [secrets]
+# APPLICATION_SECRET
+# IF_API_KEY

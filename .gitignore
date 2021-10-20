@@ -1,5 +1,6 @@
-.DS_STORE
-node_modules
-.env
-.env.app
 dist
+node_modules
+transpiled
+/.idea/
+worker
+.env

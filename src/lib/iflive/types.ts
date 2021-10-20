@@ -247,3 +247,21 @@ export interface Aircraft {
     apprSpeedRe: number;
     maxPassengers: number;
 }
+
+export interface AirportStatus {
+    airportIcao: string;
+    inboundFlightsCount: number;
+    inboundFlights: string[];
+    outboundFlightsCount: number;
+    outboundFlights: string[];
+    atcFacilities: AtcEntry[];
+}
+
+export interface OceanicTrack {
+    name: string;
+    path: string[];
+    eastLevels: number[] | null;
+    westLevels: number[] | null;
+    type: string;
+    lastSeen: string;
+}
