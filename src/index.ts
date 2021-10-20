@@ -28,8 +28,8 @@ const slashCommandHandler = createSlashCommandHandler({
         [userCommand, userHandler],
         [atisCommand, atisHandler],
         [airportCommand, airportHandler],
-        [statsCommand, statsHandler],
-        [tracksCommand, tracksHandler],
+        // [statsCommand, statsHandler],
+        // [tracksCommand, tracksHandler],
     ],
 });
 
